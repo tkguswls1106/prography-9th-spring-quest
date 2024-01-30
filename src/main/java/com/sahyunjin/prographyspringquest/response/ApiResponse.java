@@ -1,5 +1,6 @@
 package com.sahyunjin.prographyspringquest.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -13,6 +14,8 @@ public class ApiResponse<T> {
 
     private Integer code;
     private String message;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)  // result 값이 null일 경우 JSON 출력에서 제외시킴.
     private T result;
 
     // response result(실질적 데이터)가 없을때
