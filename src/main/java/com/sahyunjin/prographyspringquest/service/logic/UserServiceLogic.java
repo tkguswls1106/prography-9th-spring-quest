@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,10 +37,9 @@ public class UserServiceLogic implements UserService {
         // fakerId 기준으로 오름차순 정렬.
         fakerDataResponseDtos.sort(Comparator.comparing(FakerDataResponseDto::getId));
 
-        // User로 DB에 저장.
-        for(int i=0; i<fakerDataResponseDtos.size(); i++) {
-            User user = fakerDataResponseDtos.get(i).toEntity();
-            userJpaRepository.save(user);
-        }
+        // User로 DB에 저장. (벌크 insert)
+        List<User> users = fakerDataResponseDtos.stream().map(FakerDataResponseDto::toEntity)
+                .collect(Collectors.toList());
+        userJpaRepository.saveAll(users);  // 한번에 벌크 insert 시킴. (저장되는 객체 하나라도 에러 추적 가능. 그리고 효율성 증가.)
     }
 }
