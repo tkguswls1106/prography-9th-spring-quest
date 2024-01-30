@@ -25,7 +25,9 @@ public class UserServiceLogic implements UserService {
     @Override
     public void initFakeUsers(FakerRequestDto fakerRequestDto) {
 
-        // 초기화 코드는 차후 작성 예정.
+        // !!! 방 등등의 이외 초기화 코드는 차후 추가로 작성 예정. !!!
+        // 먼저 초기화부터 실시.
+        userJpaRepository.deleteAll();
 
         // Fake사용자 데이터 반환받음.
         FakerResponseDto fakerResponseDto = fakerServiceLogic.makeFakeUsers(fakerRequestDto);
