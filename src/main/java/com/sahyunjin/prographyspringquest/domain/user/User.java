@@ -11,7 +11,7 @@ import java.io.Serializable;
 @Getter
 @NoArgsConstructor
 
-@Table(name = "user")
+@Table(name = "member")  // h2 database 에서는 user 테이블명이 예약어로 겹치기때문에, member로 이름을 명명해주었음.
 @Entity
 public class User extends DefaultUserEntity implements Serializable {
 
