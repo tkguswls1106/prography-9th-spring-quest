@@ -5,8 +5,14 @@ import com.sahyunjin.prographyspringquest.domain.user.UserJpaRepository;
 import com.sahyunjin.prographyspringquest.dto.faker.FakerDataResponseDto;
 import com.sahyunjin.prographyspringquest.dto.faker.FakerRequestDto;
 import com.sahyunjin.prographyspringquest.dto.faker.FakerResponseDto;
+import com.sahyunjin.prographyspringquest.dto.user.PageResponseDto;
+import com.sahyunjin.prographyspringquest.dto.user.UserResponseDto;
 import com.sahyunjin.prographyspringquest.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,5 +47,18 @@ public class UserServiceLogic implements UserService {
         List<User> users = fakerDataResponseDtos.stream().map(FakerDataResponseDto::toEntity)
                 .collect(Collectors.toList());
         userJpaRepository.saveAll(users);  // 한번에 벌크 insert 시킴. (저장되는 객체 하나라도 에러 추적 가능. 그리고 효율성 증가.)
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PageResponseDto findUsers(Integer size, Integer page) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());  // id 기준으로 오름차순 정렬
+        Page<User> users = userJpaRepository.findAll(pageable);
+        Page<UserResponseDto> userResponseDtos = users.map(UserResponseDto::new);  // entity를 dto로 변환
+
+        PageResponseDto pageResponseDto = new PageResponseDto(Long.valueOf(userResponseDtos.getTotalElements()).intValue(), userResponseDtos.getTotalPages(), userResponseDtos.getContent());
+
+        return pageResponseDto;
     }
 }
