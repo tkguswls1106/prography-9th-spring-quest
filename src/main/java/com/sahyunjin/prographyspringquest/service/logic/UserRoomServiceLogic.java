@@ -116,4 +116,48 @@ public class UserRoomServiceLogic implements UserRoomService {
         }
     }
 
+    @Transactional
+    @Override
+    public void changeTeam(Integer roomId, UserRoomAttentionRequestDto userRoomAttentionRequestDto) {  // UserRoomAttentionRequestDto 클래스를 재사용하겠음.
+
+        Room room = roomJpaRepository.findById(roomId).orElseThrow(
+                ()->new BadRequestErrorException());
+        if(room.getStatus() != RoomStatus.WAIT) {  // 현재 방의 상태가 대기(WAIT) 상태일 때만 팀을 변경 가능.
+            throw new BadRequestErrorException();
+        }
+
+        boolean isExistsUser = userJpaRepository.existsById(userRoomAttentionRequestDto.getUserId());
+        if(!isExistsUser) throw new BadRequestErrorException();
+
+        UserRoom userRoom = userRoomJpaRepository.findByUserIdAndRoomId(userRoomAttentionRequestDto.getUserId(), roomId).orElseThrow(
+                ()->new BadRequestErrorException());  // 유저(userId)가 현재 해당 방(roomId)에 참가한 상태일 때만, 나가기가 가능.
+
+        int redTeamCount = 0, blueTeamCount = 0;
+        List<UserRoom> userRoomList = userRoomJpaRepository.findAllByRoomId(roomId);
+        for(int i=0; i<userRoomList.size(); i++) {
+            if(userRoomList.get(i).getTeam() == Team.RED) redTeamCount++;
+            else blueTeamCount++;
+        }
+
+        // 변경되려는 팀의 인원이 이미 해당 방 정원의 절반과 같다면 팀이 변경되지 않고 201 응답을 반환.
+        int waitUsersCount = userRoomList.size();
+        Team nowTeam = userRoom.getTeam();
+        if(room.getRoomType() == RoomType.SINGLE) {  // SINGLE(단식) 2인게임인 경우라면
+            if(nowTeam == Team.RED && blueTeamCount == 1) throw new BadRequestErrorException();
+            else if(nowTeam == Team.BLUE && redTeamCount == 1) throw new BadRequestErrorException();
+            else {
+                if(nowTeam == Team.RED) userRoom.updateTeam(Team.BLUE);
+                else userRoom.updateTeam(Team.RED);
+            }
+        }
+        else {  // DOUBLE(복식) 4인게임인 경우라면
+            if(nowTeam == Team.RED && blueTeamCount == 2) throw new BadRequestErrorException();
+            else if(nowTeam == Team.BLUE && redTeamCount == 2) throw new BadRequestErrorException();
+            else {
+                if(nowTeam == Team.RED) userRoom.updateTeam(Team.BLUE);
+                else userRoom.updateTeam(Team.RED);
+            }
+        }
+    }
+
 }

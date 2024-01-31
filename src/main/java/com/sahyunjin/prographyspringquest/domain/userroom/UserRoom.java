@@ -1,6 +1,5 @@
 package com.sahyunjin.prographyspringquest.domain.userroom;
 
-import com.sahyunjin.prographyspringquest.domain.user.Status;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,6 +33,12 @@ public class UserRoom implements Serializable {
         // 사용자&방 저장 용도의 빌더
         this.roomId = roomId;
         this.userId = userId;
+        this.team = team;
+    }
+
+
+    // 수정(업데이트) 기능
+    public void updateTeam(Team team) {
         this.team = team;
     }
 }

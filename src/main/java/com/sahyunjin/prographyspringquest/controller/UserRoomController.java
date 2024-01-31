@@ -6,10 +6,7 @@ import com.sahyunjin.prographyspringquest.response.ResponseCode;
 import com.sahyunjin.prographyspringquest.service.UserRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,8 +22,14 @@ public class UserRoomController {
     }
 
     @PostMapping("/room/out/{roomId}")
-    public ResponseEntity outRoom(@PathVariable Integer roomId, @RequestBody UserRoomAttentionRequestDto userRoomAttentionRequestDto) {
+    public ResponseEntity outRoom(@PathVariable Integer roomId, @RequestBody UserRoomAttentionRequestDto userRoomAttentionRequestDto) {  // UserRoomAttentionRequestDto 클래스를 재사용하겠음.
         userRoomService.outRoom(roomId, userRoomAttentionRequestDto);
+        return ApiResponse.toResponseEntity(ResponseCode.SUCCESS);
+    }
+
+    @PutMapping("/team/{roomId}")
+    public ResponseEntity changeTeam(@PathVariable Integer roomId, @RequestBody UserRoomAttentionRequestDto userRoomAttentionRequestDto) {  // UserRoomAttentionRequestDto 클래스를 재사용하겠음.
+        userRoomService.changeTeam(roomId, userRoomAttentionRequestDto);
         return ApiResponse.toResponseEntity(ResponseCode.SUCCESS);
     }
 }
