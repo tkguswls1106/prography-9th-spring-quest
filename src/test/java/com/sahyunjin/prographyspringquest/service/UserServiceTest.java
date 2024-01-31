@@ -1,7 +1,9 @@
 package com.sahyunjin.prographyspringquest.service;
 
+import com.sahyunjin.prographyspringquest.domain.room.RoomJpaRepository;
 import com.sahyunjin.prographyspringquest.domain.user.User;
 import com.sahyunjin.prographyspringquest.domain.user.UserJpaRepository;
+import com.sahyunjin.prographyspringquest.domain.userroom.UserRoomJpaRepository;
 import com.sahyunjin.prographyspringquest.dto.faker.FakerDataResponseDto;
 import com.sahyunjin.prographyspringquest.dto.faker.FakerRequestDto;
 import com.sahyunjin.prographyspringquest.dto.faker.FakerResponseDto;
@@ -33,6 +35,10 @@ public class UserServiceTest {
     UserJpaRepository userJpaRepository;
     @Mock
     FakerServiceLogic fakerServiceLogic;
+    @Mock
+    RoomJpaRepository roomJpaRepository;
+    @Mock
+    UserRoomJpaRepository userRoomJpaRepository;
 
 
     @Test
@@ -52,6 +58,8 @@ public class UserServiceTest {
         userServiceLogic.initFakeUsers(fakerRequestDto);
 
         // then
+        verify(userRoomJpaRepository, times(1)).deleteAll();
+        verify(roomJpaRepository, times(1)).deleteAll();
         verify(userJpaRepository, times(1)).deleteAll();
         verify(userJpaRepository, times(1)).saveAll(anyList());
     }
