@@ -16,7 +16,7 @@ import java.util.Locale;
 @Getter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class DefaultUserEntity {
+public abstract class DefaultRoomEntity {
 
     @CreatedDate
     private String createdAt;
