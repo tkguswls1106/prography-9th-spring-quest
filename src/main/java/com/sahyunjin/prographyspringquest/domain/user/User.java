@@ -38,4 +38,10 @@ public class User extends DefaultUserEntity implements Serializable {
         this.email = email;
         this.status = status;
     }
+
+    @Builder(builderClassName = "UserTestBuilder", builderMethodName = "UserTestBuilder")
+    public User(Integer id) {
+        // 사용자 테스트 용도의 빌더
+        this.id = id;
+    }
 }
