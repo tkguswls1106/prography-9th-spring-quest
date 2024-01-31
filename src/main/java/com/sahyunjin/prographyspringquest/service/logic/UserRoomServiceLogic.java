@@ -35,7 +35,9 @@ public class UserRoomServiceLogic implements UserRoomService {
         // 201 응답 조건 1,5
         Room room = roomJpaRepository.findById(roomId).orElseThrow(
                 ()->new BadRequestErrorException());
-        if(room.getStatus() != RoomStatus.WAIT) {  // 대기(WAIT) 상태인 방에만 참가가 가능. (애초에 FINISH면 여기서 막히므로, 호스트는 무조건 UserRoom 테이블에 데이터가 존재함.)
+        if(room.getStatus() != RoomStatus.WAIT) {
+            // 대기(WAIT) 상태인 방에만 참가가 가능.
+            // (애초에 FINISH면 여기서 막히므로, 호스트는 무조건 UserRoom 테이블에 데이터가 존재함. 단, 차후 Team 변경으로 방장이 RED팀이 아닐수가 있음을 주의할것!)
             throw new BadRequestErrorException();
         }
 
@@ -65,7 +67,10 @@ public class UserRoomServiceLogic implements UserRoomService {
             if(!(waitUsersCount < 2)) {  // 참가하고자 하는 방(roomId)의 정원이 미달일 때만, 참가가 가능.
                 throw new BadRequestErrorException();
             }
-            else attentionTeam = Team.BLUE;  // 어차피 2인게임 이므로, 방장을 제외하고 남은 BLUE팀에 자동 배정.
+            else {
+                if(redTeamCount != 1) attentionTeam = Team.RED;
+                else attentionTeam = Team.BLUE;
+            }
         }
         else {  // DOUBLE(복식) 4인게임인 경우라면
             if(!(waitUsersCount < 4)) {  // 참가하고자 하는 방(roomId)의 정원이 미달일 때만, 참가가 가능.
@@ -104,7 +109,7 @@ public class UserRoomServiceLogic implements UserRoomService {
 
         if(room.getHostId().equals(userRoomAttentionRequestDto.getUserId())) {  // 방을 나가려는 사람이 호스트라면
             userRoomJpaRepository.deleteAllByRoomId(roomId);  // 방에 있던 모든 사람도 해당 방에서 나가게 함.
-            room.updateRoomStatus(RoomStatus.FINISH);  // 해당 방은 끝난(FINISH) 상태가 됨.
+            room.updateRoomStatus(RoomStatus.FINISH);  // 해당 방은 끝난(FINISH) 상태가 됨. (soft-delete 방식처럼 실제로 방 데이터를 삭제하진 않겠음.)
         }
         else {  // 방을 나가려는 사람이 호스트가 아니라면
             userRoomJpaRepository.delete(userRoom);  // 해당 사람만 방에서 나가게 함.
