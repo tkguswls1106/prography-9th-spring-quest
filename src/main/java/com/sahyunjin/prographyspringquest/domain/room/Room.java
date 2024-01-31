@@ -39,4 +39,10 @@ public class Room extends DefaultRoomEntity implements Serializable {
         this.roomType = roomType;
         this.status = RoomStatus.WAIT;
     }
+
+
+    // 수정(업데이트) 기능
+    public void updateRoomStatus(RoomStatus status) {
+        this.status = status;
+    }
 }

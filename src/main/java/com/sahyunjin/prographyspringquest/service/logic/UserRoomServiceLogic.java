@@ -77,4 +77,32 @@ public class UserRoomServiceLogic implements UserRoomService {
         userRoomJpaRepository.save(userRoom);
     }
 
+    @Transactional
+    @Override
+    public void outRoom(Integer roomId, UserRoomAttentionRequestDto userRoomAttentionRequestDto) {  // UserRoomAttentionRequestDto 클래스를 재사용하겠음.
+
+        Room room = roomJpaRepository.findById(roomId).orElseThrow(
+                ()->new BadRequestErrorException());
+
+        boolean isExistsUser = userJpaRepository.existsById(userRoomAttentionRequestDto.getUserId());
+        if(!isExistsUser) throw new BadRequestErrorException();
+
+        UserRoom userRoom = userRoomJpaRepository.findByUserIdAndRoomId(userRoomAttentionRequestDto.getUserId(), roomId).orElseThrow(
+                ()->new BadRequestErrorException());  // 유저(userId)가 현재 해당 방(roomId)에 참가한 상태일 때만, 나가기가 가능.
+
+        if(room.getStatus() != RoomStatus.WAIT) {  // 이미 시작(PROGRESS) 상태인 방이거나 끝난(FINISH) 상태의 방은 나갈수없음.
+            throw new BadRequestErrorException();
+        }
+
+        if(room.getHostId().equals(userRoomAttentionRequestDto.getUserId())) {  // 방을 나가려는 사람이 호스트라면
+            userRoomJpaRepository.deleteAllByRoomId(roomId);  // 방에 있던 모든 사람도 해당 방에서 나가게 함.
+            room.updateRoomStatus(RoomStatus.FINISH);  // 해당 방은 끝난(FINISH) 상태가 됨.
+        }
+        else {  // 방을 나가려는 사람이 호스트가 아니라면
+            userRoomJpaRepository.delete(userRoom);  // 해당 사람만 방에서 나가게 함.
+        }
+
+
+    }
+
 }
