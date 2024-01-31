@@ -5,10 +5,16 @@ import com.sahyunjin.prographyspringquest.domain.room.RoomJpaRepository;
 import com.sahyunjin.prographyspringquest.domain.user.Status;
 import com.sahyunjin.prographyspringquest.domain.user.User;
 import com.sahyunjin.prographyspringquest.domain.user.UserJpaRepository;
+import com.sahyunjin.prographyspringquest.dto.room.RoomPageResponseDto;
+import com.sahyunjin.prographyspringquest.dto.room.RoomResponseDto;
 import com.sahyunjin.prographyspringquest.dto.room.RoomSaveRequestDto;
 import com.sahyunjin.prographyspringquest.response.exeption.BadRequestErrorException;
 import com.sahyunjin.prographyspringquest.service.RoomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,5 +43,18 @@ public class RoomServiceLogic implements RoomService {
 
         Room entity = roomSaveRequestDto.toEntity();
         roomJpaRepository.save(entity);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public RoomPageResponseDto findRooms(Integer size, Integer page) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());  // id 기준으로 오름차순 정렬
+        Page<Room> rooms = roomJpaRepository.findAll(pageable);
+        Page<RoomResponseDto> roomResponseDtos = rooms.map(RoomResponseDto::new);  // entity를 dto로 변환
+
+        RoomPageResponseDto roomPageResponseDto = new RoomPageResponseDto(Long.valueOf(roomResponseDtos.getTotalElements()).intValue(), roomResponseDtos.getTotalPages(), roomResponseDtos.getContent());
+
+        return roomPageResponseDto;
     }
 }
