@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserRoomServiceLogic implements UserRoomService {
@@ -33,7 +35,7 @@ public class UserRoomServiceLogic implements UserRoomService {
         // 201 응답 조건 1,5
         Room room = roomJpaRepository.findById(roomId).orElseThrow(
                 ()->new BadRequestErrorException());
-        if(room.getStatus() != RoomStatus.WAIT) {  // 대기(WAIT) 상태인 방에만 참가가 가능.
+        if(room.getStatus() != RoomStatus.WAIT) {  // 대기(WAIT) 상태인 방에만 참가가 가능. (애초에 FINISH면 여기서 막히므로, 호스트는 무조건 UserRoom 테이블에 데이터가 존재함.)
             throw new BadRequestErrorException();
         }
 
@@ -50,21 +52,27 @@ public class UserRoomServiceLogic implements UserRoomService {
             throw new BadRequestErrorException();
         }
 
+        int redTeamCount = 0;
+        List<UserRoom> userRoomList = userRoomJpaRepository.findAllByRoomId(roomId);
+        for(int i=0; i<userRoomList.size(); i++) {
+            if(userRoomList.get(i).getTeam() == Team.RED) redTeamCount++;
+        }
+
         // 201 응답 조건 4
-        Integer waitUsersCount = Long.valueOf(userRoomJpaRepository.countByRoomId(roomId)).intValue();
+        int waitUsersCount = userRoomList.size();
         Team attentionTeam;
         if(room.getRoomType() == RoomType.SINGLE) {  // SINGLE(단식) 2인게임인 경우라면
-            if (!(waitUsersCount < 2)) {  // 참가하고자 하는 방(roomId)의 정원이 미달일 때만, 참가가 가능.
+            if(!(waitUsersCount < 2)) {  // 참가하고자 하는 방(roomId)의 정원이 미달일 때만, 참가가 가능.
                 throw new BadRequestErrorException();
             }
-            else attentionTeam = Team.BLUE;  // 어차피 2인게임 이므로, 방장을 제외한 남은 BLUE팀 배정.
+            else attentionTeam = Team.BLUE;  // 어차피 2인게임 이므로, 방장을 제외하고 남은 BLUE팀에 자동 배정.
         }
         else {  // DOUBLE(복식) 4인게임인 경우라면
-            if (!(waitUsersCount < 4)) {  // 참가하고자 하는 방(roomId)의 정원이 미달일 때만, 참가가 가능.
+            if(!(waitUsersCount < 4)) {  // 참가하고자 하는 방(roomId)의 정원이 미달일 때만, 참가가 가능.
                 throw new BadRequestErrorException();
             }
             else {
-                if(waitUsersCount < 2) attentionTeam = Team.RED;
+                if(redTeamCount < 2) attentionTeam = Team.RED;
                 else attentionTeam = Team.BLUE;
             }
         }
