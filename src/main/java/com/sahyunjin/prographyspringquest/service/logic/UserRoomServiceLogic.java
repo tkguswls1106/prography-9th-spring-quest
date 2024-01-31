@@ -15,9 +15,15 @@ import com.sahyunjin.prographyspringquest.response.exeption.BadRequestErrorExcep
 import com.sahyunjin.prographyspringquest.service.UserRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +32,7 @@ public class UserRoomServiceLogic implements UserRoomService {
     private final UserRoomJpaRepository userRoomJpaRepository;
     private final RoomJpaRepository roomJpaRepository;
     private final UserJpaRepository userJpaRepository;
+    private final TransactionTemplate transactionTemplate;
 
 
     @Transactional
@@ -144,6 +151,21 @@ public class UserRoomServiceLogic implements UserRoomService {
         }
 
         room.updateRoomStatus(RoomStatus.PROGRESS);  // 방의 상태를 진행중(PROGRESS) 상태로 변경.
+
+        // 게임시작이 된 방은 1분 뒤 종료(FINISH) 상태로 변경됨. 그리고 UserRoom에서 제거시킴. Room에는 FINISH 상태로 유지.
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.schedule(() -> {
+            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    userRoomJpaRepository.deleteAllByRoomId(roomId);
+                    Room delayedRoom = roomJpaRepository.findById(roomId).orElseThrow(
+                            ()->new BadRequestErrorException());
+                    delayedRoom.updateRoomStatus(RoomStatus.FINISH);
+                }
+            });
+        }, 1, TimeUnit.MINUTES);
+        executorService.shutdown();
     }
 
     @Transactional
