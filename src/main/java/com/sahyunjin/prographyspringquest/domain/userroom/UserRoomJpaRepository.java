@@ -11,6 +11,7 @@ public interface UserRoomJpaRepository extends JpaRepository<UserRoom, Integer> 
     List<UserRoom> findAllByRoomId(Integer roomId);
 
     boolean existsByUserId(Integer userId);
+    boolean existsByUserIdAndRoomId(Integer userId, Integer roomId);
 
     void deleteAllByRoomId(Integer roomId);
 }

@@ -118,6 +118,36 @@ public class UserRoomServiceLogic implements UserRoomService {
 
     @Transactional
     @Override
+    public void gameStart(Integer roomId, UserRoomAttentionRequestDto userRoomAttentionRequestDto) {  // UserRoomAttentionRequestDto 클래스를 재사용하겠음.
+
+        Room room = roomJpaRepository.findById(roomId).orElseThrow(
+                ()->new BadRequestErrorException());
+        if(room.getStatus() != RoomStatus.WAIT) {  // 현재 방의 상태가 대기(WAIT) 상태일 때만 시작 가능.
+            throw new BadRequestErrorException();
+        }
+
+        boolean isExistsUser = userJpaRepository.existsById(userRoomAttentionRequestDto.getUserId());
+        boolean isExistsUserRoom = userRoomJpaRepository.existsByUserIdAndRoomId(userRoomAttentionRequestDto.getUserId(), roomId);
+        if((!isExistsUser) || (!isExistsUserRoom)) throw new BadRequestErrorException();
+
+        if(!(room.getHostId().equals(userRoomAttentionRequestDto.getUserId()))) {  // 호스트인 유저만 게임 시작 가능.
+            throw new BadRequestErrorException();
+        }
+
+        // 방 정원이 방의 타입에 맞게 모두 꽉 찬 상태에서만 게임 시작 가능.
+        List<UserRoom> userRoomList = userRoomJpaRepository.findAllByRoomId(roomId);
+        if(room.getRoomType() == RoomType.SINGLE) {  // SINGLE(단식) 2인게임인 경우라면
+            if(userRoomList.size() != 2) throw new BadRequestErrorException();
+        }
+        else {  // DOUBLE(복식) 4인게임인 경우라면
+            if(userRoomList.size() != 4) throw new BadRequestErrorException();
+        }
+
+        room.updateRoomStatus(RoomStatus.PROGRESS);  // 방의 상태를 진행중(PROGRESS) 상태로 변경.
+    }
+
+    @Transactional
+    @Override
     public void changeTeam(Integer roomId, UserRoomAttentionRequestDto userRoomAttentionRequestDto) {  // UserRoomAttentionRequestDto 클래스를 재사용하겠음.
 
         Room room = roomJpaRepository.findById(roomId).orElseThrow(
@@ -159,5 +189,4 @@ public class UserRoomServiceLogic implements UserRoomService {
             }
         }
     }
-
 }

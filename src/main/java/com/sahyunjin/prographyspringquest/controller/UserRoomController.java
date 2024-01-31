@@ -27,6 +27,12 @@ public class UserRoomController {
         return ApiResponse.toResponseEntity(ResponseCode.SUCCESS);
     }
 
+    @PutMapping("/room/start/{roomId}")
+    public ResponseEntity gameStart(@PathVariable Integer roomId, @RequestBody UserRoomAttentionRequestDto userRoomAttentionRequestDto) {  // UserRoomAttentionRequestDto 클래스를 재사용하겠음.
+        userRoomService.gameStart(roomId, userRoomAttentionRequestDto);
+        return ApiResponse.toResponseEntity(ResponseCode.SUCCESS);
+    }
+
     @PutMapping("/team/{roomId}")
     public ResponseEntity changeTeam(@PathVariable Integer roomId, @RequestBody UserRoomAttentionRequestDto userRoomAttentionRequestDto) {  // UserRoomAttentionRequestDto 클래스를 재사용하겠음.
         userRoomService.changeTeam(roomId, userRoomAttentionRequestDto);
