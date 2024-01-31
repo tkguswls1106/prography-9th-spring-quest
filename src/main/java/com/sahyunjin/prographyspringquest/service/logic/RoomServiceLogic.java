@@ -36,7 +36,7 @@ public class RoomServiceLogic implements RoomService {
     public void createRoom(RoomSaveRequestDto roomSaveRequestDto) {
 
         User user = userJpaRepository.findById(roomSaveRequestDto.getUserId()).orElseThrow(
-                ()->new RuntimeException("ERROR - 해당 userId의 사용자는 존재하지않습니다."));
+                ()->new BadRequestErrorException());
         if(user.getStatus() != Status.ACTIVE) {  // 방을 생성하려고 하는 user(userId)의 상태가 활성(ACTIVE)상태일 때만, 방을 생성 가능.
             throw new BadRequestErrorException();
         }

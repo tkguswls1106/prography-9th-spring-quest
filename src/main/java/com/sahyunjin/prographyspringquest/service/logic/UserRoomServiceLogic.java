@@ -1,0 +1,80 @@
+package com.sahyunjin.prographyspringquest.service.logic;
+
+import com.sahyunjin.prographyspringquest.domain.room.Room;
+import com.sahyunjin.prographyspringquest.domain.room.RoomJpaRepository;
+import com.sahyunjin.prographyspringquest.domain.room.RoomStatus;
+import com.sahyunjin.prographyspringquest.domain.room.RoomType;
+import com.sahyunjin.prographyspringquest.domain.user.Status;
+import com.sahyunjin.prographyspringquest.domain.user.User;
+import com.sahyunjin.prographyspringquest.domain.user.UserJpaRepository;
+import com.sahyunjin.prographyspringquest.domain.userroom.Team;
+import com.sahyunjin.prographyspringquest.domain.userroom.UserRoom;
+import com.sahyunjin.prographyspringquest.domain.userroom.UserRoomJpaRepository;
+import com.sahyunjin.prographyspringquest.dto.userroom.UserRoomAttentionRequestDto;
+import com.sahyunjin.prographyspringquest.response.exeption.BadRequestErrorException;
+import com.sahyunjin.prographyspringquest.service.UserRoomService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class UserRoomServiceLogic implements UserRoomService {
+
+    private final UserRoomJpaRepository userRoomJpaRepository;
+    private final RoomJpaRepository roomJpaRepository;
+    private final UserJpaRepository userJpaRepository;
+
+
+    @Transactional
+    @Override
+    public void attentionRoom(Integer roomId, UserRoomAttentionRequestDto userRoomAttentionRequestDto) {
+
+        // 201 응답 조건 1,5
+        Room room = roomJpaRepository.findById(roomId).orElseThrow(
+                ()->new BadRequestErrorException());
+        if(room.getStatus() != RoomStatus.WAIT) {  // 대기(WAIT) 상태인 방에만 참가가 가능.
+            throw new BadRequestErrorException();
+        }
+
+        // 201 응답 조건 2,5
+        User user = userJpaRepository.findById(userRoomAttentionRequestDto.getUserId()).orElseThrow(
+                ()->new BadRequestErrorException());
+        if(user.getStatus() != Status.ACTIVE) {  // 유저(userId)가 활성(ACTIVE) 상태일 때만, 방에 참가가 가능.
+            throw new BadRequestErrorException();
+        }
+
+        // 201 응답 조건 3
+        boolean isExistsUserRoom = userRoomJpaRepository.existsByUserId(user.getId());
+        if(isExistsUserRoom) {  // 유저(userId)가 현재 참여한 방이 없을때만, 방에 참가가 가능.
+            throw new BadRequestErrorException();
+        }
+
+        // 201 응답 조건 4
+        Integer waitUsersCount = Long.valueOf(userRoomJpaRepository.countByRoomId(roomId)).intValue();
+        Team attentionTeam;
+        if(room.getRoomType() == RoomType.SINGLE) {  // SINGLE(단식) 2인게임인 경우라면
+            if (!(waitUsersCount < 2)) {  // 참가하고자 하는 방(roomId)의 정원이 미달일 때만, 참가가 가능.
+                throw new BadRequestErrorException();
+            }
+            else attentionTeam = Team.BLUE;  // 어차피 2인게임 이므로, 방장을 제외한 남은 BLUE팀 배정.
+        }
+        else {  // DOUBLE(복식) 4인게임인 경우라면
+            if (!(waitUsersCount < 4)) {  // 참가하고자 하는 방(roomId)의 정원이 미달일 때만, 참가가 가능.
+                throw new BadRequestErrorException();
+            }
+            else {
+                if(waitUsersCount < 2) attentionTeam = Team.RED;
+                else attentionTeam = Team.BLUE;
+            }
+        }
+
+        UserRoom userRoom = UserRoom.UserRoomSaveBuilder()
+                .roomId(roomId)
+                .userId(user.getId())
+                .team(attentionTeam)
+                .build();
+        userRoomJpaRepository.save(userRoom);
+    }
+
+}

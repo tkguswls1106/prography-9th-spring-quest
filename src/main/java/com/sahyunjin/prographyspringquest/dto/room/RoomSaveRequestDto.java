@@ -23,7 +23,7 @@ public class RoomSaveRequestDto {
             newRoomType = RoomType.DOUBLE;
         }
         else {  // 입력값이 잘못된 경우 예외처리 시킴.
-            throw new RuntimeException("ERROR - roomType 입력값 오류");
+            throw new RuntimeException("ERROR - roomType 입력값 오류");  // 500 응답으로 처리하였음. (문제에 명시된 '존재하지 않는 id에 대한 요청'일 경우가 아니기 때문임.)
         }
 
         return Room.RoomSaveBuilder()
