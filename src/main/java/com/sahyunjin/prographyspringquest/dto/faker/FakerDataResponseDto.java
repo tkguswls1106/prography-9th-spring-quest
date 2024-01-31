@@ -5,8 +5,6 @@ import com.sahyunjin.prographyspringquest.domain.user.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-
 @Getter
 @NoArgsConstructor
 public class FakerDataResponseDto {
