@@ -28,7 +28,7 @@ public class FakerServiceTest {
     @DisplayName("가짜 사용자 데이터 반환_Test")
     void makeFakeUsers_Test() {
 
-        // given  // 1. 테스트에서 이러한 것이 주어졌는데1
+        // given  // 1. 테스트에서 이러한 것이 주어졌는데
         FakerResponseDto fakerResponseDto1 = new FakerResponseDto();
         fakerResponseDto1.setTotal(10);
         when(fakerClient.makeFakeUsers(any(), any(), any())).thenReturn(fakerResponseDto1);

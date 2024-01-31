@@ -32,7 +32,7 @@ public class UserServiceLogic implements UserService {
     @Override
     public void initFakeUsers(FakerRequestDto fakerRequestDto) {
 
-        // !!! 방 등등의 이외 초기화 코드는 차후 추가로 작성 예정. !!!
+        // !!! 방 등등의 이외 초기화 코드는 차후 추가로 작성 예정. 테스트 코드 또한 마찬가지. !!!
         // 먼저 초기화부터 실시.
         userJpaRepository.deleteAll();
 

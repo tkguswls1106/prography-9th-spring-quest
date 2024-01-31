@@ -5,6 +5,8 @@ import com.sahyunjin.prographyspringquest.domain.user.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+
 @Getter
 @NoArgsConstructor
 public class FakerDataResponseDto {
@@ -40,5 +42,11 @@ public class FakerDataResponseDto {
                 .email(email)
                 .status(newStatus)
                 .build();
+    }
+
+
+    // 테스트 전용 set매소드
+    public void setId(Integer id) {
+        this.id = id;
     }
 }
