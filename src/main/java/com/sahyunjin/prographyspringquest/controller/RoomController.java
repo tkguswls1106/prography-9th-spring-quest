@@ -30,7 +30,7 @@ public class RoomController {
     }
 
     @GetMapping("/room/{roomId}")
-    public ResponseEntity findRooms(@PathVariable Integer roomId) {
+    public ResponseEntity findOneRoom(@PathVariable Integer roomId) {
         RoomFindResponseDto roomFindResponseDto = roomService.findOneRoom(roomId);
         return ApiResponse.toResponseEntity(ResponseCode.SUCCESS, roomFindResponseDto);
     }
