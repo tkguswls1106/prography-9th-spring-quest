@@ -2,6 +2,7 @@ package com.sahyunjin.prographyspringquest.domain.room;
 
 import com.sahyunjin.prographyspringquest.domain.DefaultRoomEntity;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,4 +30,13 @@ public class Room extends DefaultRoomEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     private RoomStatus status;
 
+
+    @Builder(builderClassName = "RoomSaveBuilder", builderMethodName = "RoomSaveBuilder")
+    public Room(Integer hostId, RoomType roomType, String title) {
+        // 방 저장 용도의 빌더
+        this.title = title;
+        this.hostId = hostId;
+        this.roomType = roomType;
+        this.status = RoomStatus.WAIT;
+    }
 }
