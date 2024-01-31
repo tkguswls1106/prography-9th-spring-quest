@@ -1,7 +1,9 @@
 package com.sahyunjin.prographyspringquest.service.logic;
 
+import com.sahyunjin.prographyspringquest.domain.room.RoomJpaRepository;
 import com.sahyunjin.prographyspringquest.domain.user.User;
 import com.sahyunjin.prographyspringquest.domain.user.UserJpaRepository;
+import com.sahyunjin.prographyspringquest.domain.userroom.UserRoomJpaRepository;
 import com.sahyunjin.prographyspringquest.dto.faker.FakerDataResponseDto;
 import com.sahyunjin.prographyspringquest.dto.faker.FakerRequestDto;
 import com.sahyunjin.prographyspringquest.dto.faker.FakerResponseDto;
@@ -26,14 +28,17 @@ public class UserServiceLogic implements UserService {
 
     private final UserJpaRepository userJpaRepository;
     private final FakerServiceLogic fakerServiceLogic;
+    private final RoomJpaRepository roomJpaRepository;
+    private final UserRoomJpaRepository userRoomJpaRepository;
 
 
     @Transactional
     @Override
     public void initFakeUsers(FakerRequestDto fakerRequestDto) {
 
-        // !!! 방 등등의 이외 초기화 코드는 차후 추가로 작성 예정. 테스트 코드 또한 마찬가지. !!!
         // 먼저 초기화부터 실시.
+        userRoomJpaRepository.deleteAll();
+        roomJpaRepository.deleteAll();
         userJpaRepository.deleteAll();
 
         // Fake사용자 데이터 반환받음.
