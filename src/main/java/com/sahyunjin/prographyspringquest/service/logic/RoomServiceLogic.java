@@ -5,6 +5,7 @@ import com.sahyunjin.prographyspringquest.domain.room.RoomJpaRepository;
 import com.sahyunjin.prographyspringquest.domain.user.Status;
 import com.sahyunjin.prographyspringquest.domain.user.User;
 import com.sahyunjin.prographyspringquest.domain.user.UserJpaRepository;
+import com.sahyunjin.prographyspringquest.dto.room.RoomFindResponseDto;
 import com.sahyunjin.prographyspringquest.dto.room.RoomPageResponseDto;
 import com.sahyunjin.prographyspringquest.dto.room.RoomResponseDto;
 import com.sahyunjin.prographyspringquest.dto.room.RoomSaveRequestDto;
@@ -56,5 +57,16 @@ public class RoomServiceLogic implements RoomService {
         RoomPageResponseDto roomPageResponseDto = new RoomPageResponseDto(Long.valueOf(roomResponseDtos.getTotalElements()).intValue(), roomResponseDtos.getTotalPages(), roomResponseDtos.getContent());
 
         return roomPageResponseDto;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public RoomFindResponseDto findOneRoom(Integer roomId) {
+
+        Room room = roomJpaRepository.findById(roomId).orElseThrow(
+                ()->new BadRequestErrorException());  // 존재하지 않는 id에 대한 요청이라면 201 응답을 반환.
+        RoomFindResponseDto roomFindResponseDto = new RoomFindResponseDto(room);
+
+        return roomFindResponseDto;
     }
 }

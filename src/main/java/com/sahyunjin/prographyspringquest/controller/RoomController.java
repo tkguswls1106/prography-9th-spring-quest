@@ -1,5 +1,6 @@
 package com.sahyunjin.prographyspringquest.controller;
 
+import com.sahyunjin.prographyspringquest.dto.room.RoomFindResponseDto;
 import com.sahyunjin.prographyspringquest.dto.room.RoomPageResponseDto;
 import com.sahyunjin.prographyspringquest.dto.room.RoomSaveRequestDto;
 import com.sahyunjin.prographyspringquest.response.ApiResponse;
@@ -26,5 +27,11 @@ public class RoomController {
     public ResponseEntity findRooms(@RequestParam("size") Integer size, @RequestParam("page") Integer page) {
         RoomPageResponseDto roomPageResponseDto = roomService.findRooms(size, page);
         return ApiResponse.toResponseEntity(ResponseCode.SUCCESS, roomPageResponseDto);
+    }
+
+    @GetMapping("/room/{roomId}")
+    public ResponseEntity findRooms(@PathVariable Integer roomId) {
+        RoomFindResponseDto roomFindResponseDto = roomService.findOneRoom(roomId);
+        return ApiResponse.toResponseEntity(ResponseCode.SUCCESS, roomFindResponseDto);
     }
 }
