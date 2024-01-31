@@ -109,8 +109,6 @@ public class UserRoomServiceLogic implements UserRoomService {
         else {  // 방을 나가려는 사람이 호스트가 아니라면
             userRoomJpaRepository.delete(userRoom);  // 해당 사람만 방에서 나가게 함.
         }
-
-
     }
 
 }

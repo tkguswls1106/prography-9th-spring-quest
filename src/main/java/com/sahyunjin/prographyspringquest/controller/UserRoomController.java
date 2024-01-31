@@ -23,4 +23,10 @@ public class UserRoomController {
         userRoomService.attentionRoom(roomId, userRoomAttentionRequestDto);
         return ApiResponse.toResponseEntity(ResponseCode.SUCCESS);
     }
+
+    @PostMapping("/room/out/{roomId}")
+    public ResponseEntity outRoom(@PathVariable Integer roomId, @RequestBody UserRoomAttentionRequestDto userRoomAttentionRequestDto) {
+        userRoomService.outRoom(roomId, userRoomAttentionRequestDto);
+        return ApiResponse.toResponseEntity(ResponseCode.SUCCESS);
+    }
 }
