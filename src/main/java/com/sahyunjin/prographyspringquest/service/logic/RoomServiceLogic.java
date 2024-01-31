@@ -5,10 +5,13 @@ import com.sahyunjin.prographyspringquest.domain.room.RoomJpaRepository;
 import com.sahyunjin.prographyspringquest.domain.user.Status;
 import com.sahyunjin.prographyspringquest.domain.user.User;
 import com.sahyunjin.prographyspringquest.domain.user.UserJpaRepository;
+import com.sahyunjin.prographyspringquest.domain.userroom.UserRoom;
+import com.sahyunjin.prographyspringquest.domain.userroom.UserRoomJpaRepository;
 import com.sahyunjin.prographyspringquest.dto.room.RoomFindResponseDto;
 import com.sahyunjin.prographyspringquest.dto.room.RoomPageResponseDto;
 import com.sahyunjin.prographyspringquest.dto.room.RoomResponseDto;
 import com.sahyunjin.prographyspringquest.dto.room.RoomSaveRequestDto;
+import com.sahyunjin.prographyspringquest.dto.userroom.UserRoomSaveRequestDto;
 import com.sahyunjin.prographyspringquest.response.exeption.BadRequestErrorException;
 import com.sahyunjin.prographyspringquest.service.RoomService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,7 @@ public class RoomServiceLogic implements RoomService {
 
     private final RoomJpaRepository roomJpaRepository;
     private final UserJpaRepository userJpaRepository;
+    private final UserRoomJpaRepository userRoomJpaRepository;
 
 
     @Transactional
@@ -37,13 +41,17 @@ public class RoomServiceLogic implements RoomService {
             throw new BadRequestErrorException();
         }
 
-        // !!! 방 등등의 이외 초기화 코드는 차후 추가로 작성 예정. 테스트 코드 또한 마찬가지. !!!
-//        if(exists 코드) {  // 방을 생성하려고 하는 user(userId)가 현재 참여한 방이 있다면, 방을 생성할 수 없음.
-//            throw new BadRequestErrorException();
-//        }
+        boolean isExistsUserRoom = userRoomJpaRepository.existsByUserId(user.getId());
+        if(isExistsUserRoom) {  // 방을 생성하려고 하는 user(userId)가 현재 참여한 방이 있다면, 방을 생성할 수 없음.
+            throw new BadRequestErrorException();
+        }
 
-        Room entity = roomSaveRequestDto.toEntity();
-        roomJpaRepository.save(entity);
+        Room room = roomSaveRequestDto.toEntity();
+        roomJpaRepository.save(room);  // 1. 먼저 Room 정보를 저장한후에,
+
+        UserRoomSaveRequestDto userRoomSaveRequestDto = new UserRoomSaveRequestDto(room.getId(), user.getId());
+        UserRoom userRoom = userRoomSaveRequestDto.toEntity();
+        userRoomJpaRepository.save(userRoom);  // 2. 다음 순서로 UserRoom 정보를 저장.
     }
 
     @Transactional(readOnly = true)
