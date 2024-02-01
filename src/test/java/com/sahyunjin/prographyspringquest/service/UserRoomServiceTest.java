@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,16 +35,22 @@ public class UserRoomServiceTest {
     private RoomJpaRepository roomJpaRepository;
     @Mock
     private UserRoomJpaRepository userRoomJpaRepository;
-    @Mock
-    private TransactionTemplate transactionTemplate;
+    // 밑은 시간경과후 변화하는지 확인해야하므로, 테스트에서 제외시키겠음.
+//    @Mock
+//    private TransactionTemplate transactionTemplate;
 
     User user; Room room; UserRoom userRoom;
+    Room mockRoom;
     Integer roomId; UserRoomAttentionRequestDto userRoomAttentionRequestDto;
     @BeforeEach
     public void beforeEach() {
         user = User.UserTestBuilder().id(1).build();
         room = Room.RoomTestBuilder().id(1).build();
         userRoom = UserRoom.UserRoomTestBuilder().id(1).build();
+
+        // update 관련 메소드는 엔티티클래스 내부에 직접 선언되어있으므로,
+        // 나중에 update메소드 실행 확인할때 위의 room같은 실제 객체에 접근하면 verify 못하므로, spy로 가짜 모킹 객체를 만들어 기존 객체를 모방해줘야한다.
+        mockRoom = spy(room);
 
         roomId = 1;
         userRoomAttentionRequestDto = new UserRoomAttentionRequestDto();
@@ -77,7 +82,7 @@ public class UserRoomServiceTest {
     void outRoom_Host_test() {  // 방을 나가려는 사람이 호스트일 경우의 테스트
 
         // given
-        when(roomJpaRepository.findById(roomId)).thenReturn(Optional.of(room));
+        when(roomJpaRepository.findById(roomId)).thenReturn(Optional.of(mockRoom));
         when(userJpaRepository.existsById(userRoomAttentionRequestDto.getUserId())).thenReturn(true);
         when(userRoomJpaRepository.findByUserIdAndRoomId(userRoomAttentionRequestDto.getUserId(), roomId)).thenReturn(Optional.of(userRoom));
 
@@ -86,8 +91,11 @@ public class UserRoomServiceTest {
 
         // then - 조건1 (방을 나가려는 사람이 호스트일때)
         verify(userRoomJpaRepository, times(1)).deleteAllByRoomId(roomId);
-        assertThat(room.getStatus()).isEqualTo(RoomStatus.FINISH);
+        verify(mockRoom, times(1)).updateRoomStatus(RoomStatus.FINISH);
         verify(userRoomJpaRepository, times(0)).delete(userRoom);
+
+        // 밑은 mock객체가 아닌 실제 객체에 접근하므로, 단위 테스트의 범위를 벗어나는 행위이므로 실행하지 않겠음.
+//        assertThat(room.getStatus()).isEqualTo(RoomStatus.FINISH);
     }
 
     @Test
@@ -96,7 +104,7 @@ public class UserRoomServiceTest {
 
         // given
         userRoomAttentionRequestDto.setId(2);
-        when(roomJpaRepository.findById(roomId)).thenReturn(Optional.of(room));
+        when(roomJpaRepository.findById(roomId)).thenReturn(Optional.of(mockRoom));
         when(userJpaRepository.existsById(userRoomAttentionRequestDto.getUserId())).thenReturn(true);
         when(userRoomJpaRepository.findByUserIdAndRoomId(userRoomAttentionRequestDto.getUserId(), roomId)).thenReturn(Optional.of(userRoom));
 
@@ -105,8 +113,31 @@ public class UserRoomServiceTest {
 
         // then - 조건2 (방을 나가려는 사람이 호스트가 아닐때)
         verify(userRoomJpaRepository, times(0)).deleteAllByRoomId(roomId);
-        assertThat(room.getStatus()).isNotEqualTo(RoomStatus.FINISH);
+        verify(mockRoom, times(0)).updateRoomStatus(RoomStatus.FINISH);
         verify(userRoomJpaRepository, times(1)).delete(userRoom);
+
+        // 밑은 mock객체가 아닌 실제 객체에 접근하므로, 단위 테스트의 범위를 벗어나는 행위이므로 실행하지 않겠음.
+//        assertThat(room.getStatus()).isNotEqualTo(RoomStatus.FINISH);
+    }
+
+    @Test
+    @DisplayName("게임시작_Test")
+    void gameStart_test() {
+
+        // given
+        List<UserRoom> userRoomList = new ArrayList<>();
+        for(int i=0; i<4; i++) userRoomList.add(userRoom);  // 현재 게임 내의 인원수: 4명 (이렇게되면 복식게임에서 인원수 모두 충족으로, 게임 시작 가능해짐.)
+
+        when(roomJpaRepository.findById(roomId)).thenReturn(Optional.of(mockRoom));
+        when(userJpaRepository.existsById(userRoomAttentionRequestDto.getUserId())).thenReturn(true);
+        when(userRoomJpaRepository.existsByUserIdAndRoomId(userRoomAttentionRequestDto.getUserId(), roomId)).thenReturn(true);
+        when(userRoomJpaRepository.findAllByRoomId(roomId)).thenReturn(userRoomList);
+
+        // when
+        userRoomServiceLogic.gameStart(roomId, userRoomAttentionRequestDto);
+
+        // then
+        verify(mockRoom, times(1)).updateRoomStatus(RoomStatus.PROGRESS);
     }
 
 }
