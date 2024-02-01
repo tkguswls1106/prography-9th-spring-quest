@@ -9,17 +9,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FakerDataResponseDto {
 
-    public Integer id;
-    public String uuid;
-    public String firstname;
-    public String lastname;
-    public String username;
-    public String password;
-    public String email;
-    public String ip;
-    public String macAddress;
-    public String website;
-    public String image;
+    private Integer id;
+    private String uuid;
+    private String firstname;
+    private String lastname;
+    private String username;
+    private String password;
+    private String email;
+    private String ip;
+    private String macAddress;
+    private String website;
+    private String image;
 
 
     public User toEntity() {

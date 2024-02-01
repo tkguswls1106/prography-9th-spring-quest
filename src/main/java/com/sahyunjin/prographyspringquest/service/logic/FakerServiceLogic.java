@@ -15,6 +15,6 @@ public class FakerServiceLogic {
 
     @Transactional
     public FakerResponseDto makeFakeUsers(FakerRequestDto fakerRequestDto) {
-        return fakerClient.makeFakeUsers(fakerRequestDto.seed, fakerRequestDto.quantity, "ko_KR");
+        return fakerClient.makeFakeUsers(fakerRequestDto.getSeed(), fakerRequestDto.getQuantity(), "ko_KR");
     }
 }

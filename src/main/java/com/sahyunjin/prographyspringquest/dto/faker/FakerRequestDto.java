@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FakerRequestDto {
 
-    public Integer seed;
-    public Integer quantity;
+    private Integer seed;
+    private Integer quantity;
 }

@@ -33,7 +33,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "요청 성공", content = {@Content(schema = @Schema(implementation = Response_200.class))}),
             @ApiResponse(responseCode = "500", description = "서버 에러 (문제 명시 - 실제 HTTP 상태코드는 200으로 고정)", content = {@Content(schema = @Schema(implementation = Response_500.class))})
     })
-    @GetMapping("/init")
+    @PostMapping("/init")
     public ResponseEntity initUsers(@RequestBody FakerRequestDto fakerRequestDto) {
         userService.initFakeUsers(fakerRequestDto);
         return ApiResponseData.toResponseEntity(ResponseCode.SUCCESS);

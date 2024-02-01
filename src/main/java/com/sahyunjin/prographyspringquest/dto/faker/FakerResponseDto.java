@@ -10,10 +10,10 @@ import java.util.List;
 @NoArgsConstructor
 public class FakerResponseDto {
 
-    public String status;
-    public Integer code;
-    public Integer total;
-    public List<FakerDataResponseDto> data;
+    private String status;
+    private Integer code;
+    private Integer total;
+    private List<FakerDataResponseDto> data;
 
 
     // 테스트 전용 set매소드
