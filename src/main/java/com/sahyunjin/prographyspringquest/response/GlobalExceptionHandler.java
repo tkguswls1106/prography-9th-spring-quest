@@ -12,11 +12,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity handleException(Exception ex) {
-        return ApiResponse.toResponseEntity(ResponseCode.SERVER_ERROR);
+        return ApiResponseData.toResponseEntity(ResponseCode.SERVER_ERROR);
     }
 
     @ExceptionHandler(BadRequestErrorException.class)
     public ResponseEntity handleBadRequestErrorException(Exception ex) {
-        return ApiResponse.toResponseEntity(ResponseCode.BAD_REQUEST_ERROR);
+        return ApiResponseData.toResponseEntity(ResponseCode.BAD_REQUEST_ERROR);
     }
 }
