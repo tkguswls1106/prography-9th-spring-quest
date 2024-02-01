@@ -40,7 +40,7 @@ public class UserRoomServiceTest {
 //    private TransactionTemplate transactionTemplate;
 
     User user; Room room; UserRoom userRoom;
-    Room mockRoom;
+    Room mockRoom; UserRoom mockUserRoom;
     Integer roomId; UserRoomAttentionRequestDto userRoomAttentionRequestDto;
     @BeforeEach
     public void beforeEach() {
@@ -51,6 +51,7 @@ public class UserRoomServiceTest {
         // update 관련 메소드는 엔티티클래스 내부에 직접 선언되어있으므로,
         // 나중에 update메소드 실행 확인할때 위의 room같은 실제 객체에 접근하면 verify 못하므로, spy로 가짜 모킹 객체를 만들어 기존 객체를 모방해줘야한다.
         mockRoom = spy(room);
+        mockUserRoom = spy(userRoom);
 
         roomId = 1;
         userRoomAttentionRequestDto = new UserRoomAttentionRequestDto();
@@ -140,4 +141,23 @@ public class UserRoomServiceTest {
         verify(mockRoom, times(1)).updateRoomStatus(RoomStatus.PROGRESS);
     }
 
+    @Test
+    @DisplayName("팀변경_Test")
+    void changeTeam_test() {
+
+        // given
+        List<UserRoom> userRoomList = new ArrayList<>();
+        userRoomList.add(mockUserRoom);  // 현재 게임 내의 인원수: 1명 (이렇게되면 어차피 정원의 절반도 차지않았으므로, 팀변경이 무조건 가능해짐.)
+
+        when(roomJpaRepository.findById(roomId)).thenReturn(Optional.of(room));
+        when(userJpaRepository.existsById(userRoomAttentionRequestDto.getUserId())).thenReturn(true);
+        when(userRoomJpaRepository.findByUserIdAndRoomId(userRoomAttentionRequestDto.getUserId(), roomId)).thenReturn(Optional.of(mockUserRoom));
+        when(userRoomJpaRepository.findAllByRoomId(roomId)).thenReturn(userRoomList);
+
+        // when
+        userRoomServiceLogic.changeTeam(roomId, userRoomAttentionRequestDto);
+
+        // then
+        verify(mockUserRoom, times(1)).updateTeam(any());
+    }
 }
