@@ -2,10 +2,12 @@ package com.sahyunjin.prographyspringquest.service;
 
 import com.sahyunjin.prographyspringquest.domain.room.Room;
 import com.sahyunjin.prographyspringquest.domain.room.RoomJpaRepository;
+import com.sahyunjin.prographyspringquest.domain.room.RoomType;
 import com.sahyunjin.prographyspringquest.domain.user.User;
 import com.sahyunjin.prographyspringquest.domain.user.UserJpaRepository;
 import com.sahyunjin.prographyspringquest.domain.userroom.UserRoom;
 import com.sahyunjin.prographyspringquest.domain.userroom.UserRoomJpaRepository;
+import com.sahyunjin.prographyspringquest.dto.room.RoomFindResponseDto;
 import com.sahyunjin.prographyspringquest.dto.room.RoomPageResponseDto;
 import com.sahyunjin.prographyspringquest.dto.room.RoomSaveRequestDto;
 import com.sahyunjin.prographyspringquest.service.logic.RoomServiceLogic;
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -92,5 +95,22 @@ public class RoomServiceTest {
         assertThat(roomPageResponseDto.getTotalElements()).isEqualTo(1);
         assertThat(roomPageResponseDto.getTotalPages()).isEqualTo(1);
         assertThat(roomPageResponseDto.getRoomList().get(0).getId()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("방 상세 조회_Test")
+    void findOneRoom_test() {
+
+        // given
+        when(roomJpaRepository.findById(anyInt())).thenReturn(Optional.of(room));
+
+        // when
+        RoomFindResponseDto roomFindResponseDto = roomServiceLogic.findOneRoom(1);
+
+        // then
+        verify(roomJpaRepository, times(1)).findById(anyInt());
+        assertThat(roomFindResponseDto.getId()).isEqualTo(1);
+        assertThat(roomFindResponseDto.getTitle()).isEqualTo("title");
+        assertThat(roomFindResponseDto.getRoomType()).isEqualTo(RoomType.DOUBLE);
     }
 }
