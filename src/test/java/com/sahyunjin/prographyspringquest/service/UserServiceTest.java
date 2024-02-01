@@ -35,9 +35,9 @@ public class UserServiceTest {
     @InjectMocks
     UserServiceLogic userServiceLogic;
     @Mock
-    UserJpaRepository userJpaRepository;
-    @Mock
     FakerServiceLogic fakerServiceLogic;
+    @Mock
+    UserJpaRepository userJpaRepository;
     @Mock
     RoomJpaRepository roomJpaRepository;
     @Mock
