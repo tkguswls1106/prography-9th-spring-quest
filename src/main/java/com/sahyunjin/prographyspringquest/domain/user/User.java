@@ -43,5 +43,9 @@ public class User extends DefaultUserEntity implements Serializable {
     public User(Integer id) {
         // 사용자 테스트 용도의 빌더
         this.id = id;
+        this.fakerId = 1;
+        this.name = "name";
+        this.email = "email";
+        this.status = Status.ACTIVE;
     }
 }

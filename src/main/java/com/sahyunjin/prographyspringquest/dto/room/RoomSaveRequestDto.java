@@ -32,4 +32,11 @@ public class RoomSaveRequestDto {
                 .roomType(newRoomType)
                 .build();
     }
+
+
+    // 테스트 전용 set매소드
+    public void setIdAndRoomType(Integer userId, String roomType) {
+        this.userId = userId;
+        this.roomType = roomType;
+    }
 }

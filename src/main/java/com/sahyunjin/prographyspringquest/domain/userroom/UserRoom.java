@@ -36,6 +36,15 @@ public class UserRoom implements Serializable {
         this.team = team;
     }
 
+    @Builder(builderClassName = "UserRoomTestBuilder", builderMethodName = "UserRoomTestBuilder")
+    public UserRoom(Integer id) {
+        // 사용자_방 테스트 용도의 빌더
+        this.id = id;
+        this.roomId = 1;
+        this.userId = 1;
+        this.team = Team.RED;
+    }
+
 
     // 수정(업데이트) 기능
     public void updateTeam(Team team) {

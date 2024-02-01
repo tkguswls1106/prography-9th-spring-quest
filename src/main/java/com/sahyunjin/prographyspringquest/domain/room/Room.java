@@ -40,6 +40,16 @@ public class Room extends DefaultRoomEntity implements Serializable {
         this.status = RoomStatus.WAIT;
     }
 
+    @Builder(builderClassName = "RoomTestBuilder", builderMethodName = "RoomTestBuilder")
+    public Room(Integer id) {
+        // 방 테스트 용도의 빌더
+        this.id = id;
+        this.title = "title";
+        this.hostId = 1;
+        this.roomType = RoomType.DOUBLE;
+        this.status = RoomStatus.WAIT;
+    }
+
 
     // 수정(업데이트) 기능
     public void updateRoomStatus(RoomStatus status) {
